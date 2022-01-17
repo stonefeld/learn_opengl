@@ -44,17 +44,16 @@ int
 main(int argc, char* argv[])
 {
 	// Define vertices for the triangles to draw a rectangle.
-	float vertices[] = {
-		 0.5f,  0.5f, 0.0f, // top right
-		 0.5f, -0.5f, 0.0f, // bottom right
-		-0.5f, -0.5f, 0.0f, // bottom left
-		-0.5f,  0.5f, 0.0f  // top left
+	float triangle1[] = {
+		0.25f,  0.5f, 0.0f,
+		0.0f,  -0.5f, 0.0f,
+		0.5f,  -0.5f, 0.0f
 	};
 
-	// Define the indices to specify the repetition of vertices.
-	unsigned int indices[] = {
-		0, 1, 3, // first triangle
-		1, 2, 3  // second triangle
+	float triangle2[] = {
+		-0.25f,  0.5f, 0.0f,
+		 0.0f,  -0.5f, 0.0f,
+		-0.5f,  -0.5f, 0.0f
 	};
 
 	// Initialize GLFW.
@@ -151,27 +150,30 @@ main(int argc, char* argv[])
 	glDeleteShader(fragment_shader);
 
 	// Create an instance of a vertex buffer object.
-	unsigned int vbo;
-	glGenBuffers(1, &vbo);
-
-	// Create an instance of a element buffer object.
-	unsigned int ebo;
-	glGenBuffers(1, &ebo);
+	unsigned int vbo[2];
+	glGenBuffers(2, vbo);
 
 	// Create an instance of a vertex array object.
-	unsigned int vao;
-	glGenVertexArrays(1, &vao);
+	unsigned int vao[2];
+	glGenVertexArrays(2, vao);
 
 	// Bind the vao first so everything else gets bound to this vao.
-	glBindVertexArray(vao);
+	glBindVertexArray(vao[0]);
 
 	// Bind the vbo and copy the previously defined vertex data into the vbo's memory.
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(triangle1), triangle1, GL_STATIC_DRAW);
 
-	// Bind the ebo and copy the previously defined indices into the ebo's memory.
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+	// Tell OpenGL how it should interpret the vertex data.
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+
+	// Bind the vao first so everything else gets bound to this vao.
+	glBindVertexArray(vao[1]);
+
+	// Bind the vbo and copy the previously defined vertex data into the vbo's memory.
+	glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(triangle2), triangle2, GL_STATIC_DRAW);
 
 	// Tell OpenGL how it should interpret the vertex data.
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
@@ -180,7 +182,6 @@ main(int argc, char* argv[])
 	// Unbind the vao first and then the vbo.
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 #if 0
 	// Enable wireframe mode.
@@ -199,8 +200,10 @@ main(int argc, char* argv[])
 
 		// Activate the shader program, bind the vao and draw the triangle.
 		glUseProgram(shader_program);
-		glBindVertexArray(vao);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		glBindVertexArray(vao[0]);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+		glBindVertexArray(vao[1]);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
 		glBindVertexArray(0);
 
 		// Check events and swap buffers.
@@ -209,8 +212,8 @@ main(int argc, char* argv[])
 	}
 
 	// Deallocate buffers and shader programs.
-	glDeleteVertexArrays(1, &vao);
-	glDeleteBuffers(1, &vbo);
+	glDeleteVertexArrays(2, vao);
+	glDeleteBuffers(2, vbo);
 	glDeleteProgram(shader_program);
 
 	// Terminate the program and close everything properly.

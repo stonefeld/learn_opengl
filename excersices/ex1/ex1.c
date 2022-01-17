@@ -45,16 +45,13 @@ main(int argc, char* argv[])
 {
 	// Define vertices for the triangles to draw a rectangle.
 	float vertices[] = {
-		 0.5f,  0.5f, 0.0f, // top right
-		 0.5f, -0.5f, 0.0f, // bottom right
-		-0.5f, -0.5f, 0.0f, // bottom left
-		-0.5f,  0.5f, 0.0f  // top left
-	};
+		 0.25f,  0.5f, 0.0f,
+		 0.0f,  -0.5f, 0.0f,
+		 0.5f,  -0.5f, 0.0f,
 
-	// Define the indices to specify the repetition of vertices.
-	unsigned int indices[] = {
-		0, 1, 3, // first triangle
-		1, 2, 3  // second triangle
+		-0.25f,  0.5f, 0.0f,
+		 0.0f,  -0.5f, 0.0f,
+		-0.5f,  -0.5f, 0.0f
 	};
 
 	// Initialize GLFW.
@@ -154,10 +151,6 @@ main(int argc, char* argv[])
 	unsigned int vbo;
 	glGenBuffers(1, &vbo);
 
-	// Create an instance of a element buffer object.
-	unsigned int ebo;
-	glGenBuffers(1, &ebo);
-
 	// Create an instance of a vertex array object.
 	unsigned int vao;
 	glGenVertexArrays(1, &vao);
@@ -169,10 +162,6 @@ main(int argc, char* argv[])
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-	// Bind the ebo and copy the previously defined indices into the ebo's memory.
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
 	// Tell OpenGL how it should interpret the vertex data.
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
@@ -180,7 +169,6 @@ main(int argc, char* argv[])
 	// Unbind the vao first and then the vbo.
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 #if 0
 	// Enable wireframe mode.
@@ -200,7 +188,7 @@ main(int argc, char* argv[])
 		// Activate the shader program, bind the vao and draw the triangle.
 		glUseProgram(shader_program);
 		glBindVertexArray(vao);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
 		glBindVertexArray(0);
 
 		// Check events and swap buffers.

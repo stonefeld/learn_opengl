@@ -18,7 +18,7 @@ dirs:
 
 libs:
 	cd lib/glad && $(CC) -o src/glad.o -Iinclude -c src/glad.c
-	cd lib/glfw && cmake . && make
+	cd lib/glfw && cmake . && make -s
 
 compile: $(OBJ)
 	$(CC) -o $(OUT)/$(BIN) $^ $(LDFLAGS)
