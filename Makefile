@@ -1,8 +1,8 @@
 CC = gcc
 CFLAGS = -std=c11 -O3 -g -Wall -Wextra -Wpedantic -Wstrict-aliasing
-CFLAGS += -Isrc -Ilib/glad/include -Ilib/glfw/include
+CFLAGS += -Isrc -Ilib/glad/include -Ilib/glfw/include -Ilib/stb_image/include
 LDFLAGS = -lm -ldl -lpthread
-LDFLAGS += lib/glad/src/glad.o lib/glfw/src/libglfw3.a
+LDFLAGS += lib/glad/src/glad.o lib/glfw/src/libglfw3.a lib/stb_image/src/stb_image.o
 
 OUT = build
 BIN = learn_opengl
@@ -19,6 +19,7 @@ dirs:
 libs:
 	cd lib/glad && $(CC) -o src/glad.o -Iinclude -c src/glad.c
 	cd lib/glfw && cmake . && make -s
+	cd lib/stb_image && $(CC) -o src/stb_image.o -Iinclude -c src/stb_image.c
 
 compile: $(OBJ)
 	$(CC) -o $(OUT)/$(BIN) $^ $(LDFLAGS)

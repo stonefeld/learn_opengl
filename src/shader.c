@@ -1,28 +1,12 @@
 #include "shader.h"
 #include <stdlib.h>
 
-static int _compile(const char* path, GLenum type);
+static GLuint _compile(const char* path, GLenum type);
 static void _log_and_fail(GLint handle, const char* adverb, const char* path,
                           void (*getlog)(GLuint, GLsizei, GLsizei*, GLchar*),
                           void (*getiv)(GLuint, GLenum, GLint*));
 
-static void
-_log_and_fail(GLint handle, const char* adverb, const char* path,
-              void (*getlog)(GLuint, GLsizei, GLsizei*, GLchar*),
-              void (*getiv)(GLuint, GLenum, GLint*))
-{
-	GLint loglen;
-	getiv(handle, GL_INFO_LOG_LENGTH, &loglen);
-
-	char* logtext = calloc(1, loglen);
-	getlog(handle, loglen, NULL, logtext);
-	fprintf(stderr, "Error %s shader at %s:\n\t-> %s", adverb, path, logtext);
-
-	free(logtext);
-	exit(1);
-}
-
-static int
+static GLuint
 _compile(const char* path, GLenum type)
 {
 	FILE* f;
@@ -71,10 +55,26 @@ _compile(const char* path, GLenum type)
 	return(handle);
 }
 
-shader
+static void
+_log_and_fail(GLint handle, const char* adverb, const char* path,
+              void (*getlog)(GLuint, GLsizei, GLsizei*, GLchar*),
+              void (*getiv)(GLuint, GLenum, GLint*))
+{
+	GLint loglen;
+	getiv(handle, GL_INFO_LOG_LENGTH, &loglen);
+
+	char* logtext = calloc(1, loglen);
+	getlog(handle, loglen, NULL, logtext);
+	fprintf(stderr, "Error %s shader at %s:\n\t-> %s", adverb, path, logtext);
+
+	free(logtext);
+	exit(1);
+}
+
+struct opengl_shader
 shader_create(const char* vertex_path, const char* fragment_path)
 {
-	shader self;
+	struct opengl_shader self;
 	self.vertex_handle = _compile(vertex_path, GL_VERTEX_SHADER);
 	self.fragment_handle = _compile(fragment_path, GL_FRAGMENT_SHADER);
 	self.handle = glCreateProgram();
@@ -98,7 +98,7 @@ shader_create(const char* vertex_path, const char* fragment_path)
 }
 
 void
-shader_destroy(shader self)
+shader_destroy(struct opengl_shader self)
 {
 	glDeleteProgram(self.handle);
 	glDeleteShader(self.vertex_handle);
@@ -106,56 +106,55 @@ shader_destroy(shader self)
 }
 
 void
-shader_bind(shader self)
+shader_bind(struct opengl_shader self)
 {
 	glUseProgram(self.handle);
 }
 
 void
-shader_uniform_1i(shader self, const char* name, vec1i v)
+shader_uniform_1i(struct opengl_shader self, const char* name, int v)
 {
-	glUniform1i(glGetUniformLocation(self.handle, name), v.x);
+	glUniform1i(glGetUniformLocation(self.handle, name), v);
 }
 
 void
-shader_uniform_2i(shader self, const char* name, vec2i v)
+shader_uniform_2i(struct opengl_shader self, const char* name, vec2i v)
 {
 	glUniform2i(glGetUniformLocation(self.handle, name), v.x, v.y);
 }
 
 void
-shader_uniform_3i(shader self, const char* name, vec3i v)
+shader_uniform_3i(struct opengl_shader self, const char* name, vec3i v)
 {
 	glUniform3i(glGetUniformLocation(self.handle, name), v.x, v.y, v.z);
 }
 
 void
-shader_uniform_4i(shader self, const char* name, vec4i v)
+shader_uniform_4i(struct opengl_shader self, const char* name, vec4i v)
 {
-
 	glUniform4i(glGetUniformLocation(self.handle, name), v.x, v.y, v.z, v.w);
 }
 
 void
-shader_uniform_1f(shader self, const char* name, vec1f v)
+shader_uniform_1f(struct opengl_shader self, const char* name, float v)
 {
-	glUniform1f(glGetUniformLocation(self.handle, name), v.x);
+	glUniform1f(glGetUniformLocation(self.handle, name), v);
 }
 
 void
-shader_uniform_2f(shader self, const char* name, vec2f v)
+shader_uniform_2f(struct opengl_shader self, const char* name, vec2f v)
 {
 	glUniform2f(glGetUniformLocation(self.handle, name), v.x, v.y);
 }
 
 void
-shader_uniform_3f(shader self, const char* name, vec3f v)
+shader_uniform_3f(struct opengl_shader self, const char* name, vec3f v)
 {
 	glUniform3f(glGetUniformLocation(self.handle, name), v.x, v.y, v.z);
 }
 
 void
-shader_uniform_4f(shader self, const char* name, vec4f v)
+shader_uniform_4f(struct opengl_shader self, const char* name, vec4f v)
 {
 	glUniform4f(glGetUniformLocation(self.handle, name), v.x, v.y, v.z, v.w);
 }

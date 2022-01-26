@@ -6,22 +6,6 @@ static void _log_and_fail(GLint handle, const char* adverb, const char* path,
                           void (*getlog)(GLuint, GLsizei, GLsizei*, GLchar*),
                           void (*getiv)(GLuint, GLenum, GLint*));
 
-static void
-_log_and_fail(GLint handle, const char* adverb, const char* path,
-              void (*getlog)(GLuint, GLsizei, GLsizei*, GLchar*),
-              void (*getiv)(GLuint, GLenum, GLint*))
-{
-	GLint loglen;
-	getiv(handle, GL_INFO_LOG_LENGTH, &loglen);
-
-	char* logtext = calloc(1, loglen);
-	getlog(handle, loglen, NULL, logtext);
-	fprintf(stderr, "Error %s shader at %s:\n\t-> %s", adverb, path, logtext);
-
-	free(logtext);
-	exit(1);
-}
-
 static int
 _compile(const char* path, GLenum type)
 {
@@ -69,6 +53,22 @@ _compile(const char* path, GLenum type)
 
 	free(text);
 	return(handle);
+}
+
+static void
+_log_and_fail(GLint handle, const char* adverb, const char* path,
+              void (*getlog)(GLuint, GLsizei, GLsizei*, GLchar*),
+              void (*getiv)(GLuint, GLenum, GLint*))
+{
+	GLint loglen;
+	getiv(handle, GL_INFO_LOG_LENGTH, &loglen);
+
+	char* logtext = calloc(1, loglen);
+	getlog(handle, loglen, NULL, logtext);
+	fprintf(stderr, "Error %s shader at %s:\n\t-> %s", adverb, path, logtext);
+
+	free(logtext);
+	exit(1);
 }
 
 shader
