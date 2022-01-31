@@ -34,21 +34,62 @@ main(int argc, char* argv[])
 {
 	// Define vertices for the triangles to draw a rectangle.
 	float vertices[] = {
-		// positions         // colors          // texture
-		 0.5f,  0.5f, 0.0f,  1.0f, 0.0f, 0.0f,  1.0f, 1.0f, // top right
-		 0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,  1.0f, 0.0f, // bottom right
-		-0.5f, -0.5f, 0.0f,  0.0f, 0.0f, 1.0f,  0.0f, 0.0f, // bottom left
-		-0.5f,  0.5f, 0.0f,  1.0f, 1.0f, 0.0f,  0.0f, 1.0f  // top left
-	};
+		// coords             // texture
+		// first face
+		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+		 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
 
-	// Define indices for the element buffer of each triangle.
-	unsigned int indices[] = {
-		0, 1, 3, // top triangle
-		1, 2, 3  // bottom triangle
+		// second face
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+		// third face
+		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+		// fourth face
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+		// fifth face
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		 0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+		// sixth face
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
 	};
 
 	// Initialize GLFW.
-	glfwInit();
+	if (!glfwInit())
+    {
+        fprintf(stderr, "%s", "Failed to initialize GLFW\n");
+        return(1);
+    }
 
 	// Specify GL version and profile.
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -85,14 +126,14 @@ main(int argc, char* argv[])
 	// Specify window viewport.
 	glfwSetFramebufferSizeCallback(window.handle, framebuffer_size_callback);
 
+	// Enable detph testing.
+	glEnable(GL_DEPTH_TEST);
+
 	// Create the shader.
 	struct opengl_shader shader_program = shader_create("assets/shaders/vertex.glsl", "assets/shaders/fragment.glsl");
 
 	// Create an instance of a vertex buffer object.
 	struct opengl_vbo vbo = vbo_create(GL_ARRAY_BUFFER, false);
-
-	// Create an instance of a element buffer object.
-	struct opengl_vbo ebo = vbo_create(GL_ELEMENT_ARRAY_BUFFER, false);
 
 	// Create an instance of a vertex array object.
 	struct opengl_vao vao = vao_create();
@@ -104,18 +145,11 @@ main(int argc, char* argv[])
 	vbo_bind(vbo);
 	vbo_buffer(vbo, sizeof(vertices), vertices);
 
-	// Bind the ebo and copy the previously defined indices data into the ebo's memory.
-	vbo_bind(ebo);
-	vbo_buffer(ebo, sizeof(indices), indices);
-
 	// Position data.
-	vao_attr(vao, vbo, 0, 3, GL_FLOAT, 8 * sizeof(float), 0);
-
-	// Color data.
-	vao_attr(vao, vbo, 1, 3, GL_FLOAT, 8 * sizeof(float), 3 * sizeof(float));
+	vao_attr(vao, vbo, 0, 3, GL_FLOAT, 5 * sizeof(float), 0);
 
 	// Texture data.
-	vao_attr(vao, vbo, 2, 2, GL_FLOAT, 8 * sizeof(float), 6 * sizeof(float));
+	vao_attr(vao, vbo, 1, 2, GL_FLOAT, 5 * sizeof(float), 3 * sizeof(float));
 
 #if 0
 	// Enable wireframe mode.
@@ -125,7 +159,6 @@ main(int argc, char* argv[])
 	// Unbind vao first then vbo and ebo.
 	vao_unbind();
 	vbo_unbind(vbo);
-	vbo_unbind(ebo);
 
 	// Instantiate the textures.
 	struct opengl_texture texture1 = texture_create("assets/images/container.jpg");
@@ -136,8 +169,30 @@ main(int argc, char* argv[])
 	shader_uniform_int(shader_program, "texture1", 0);
 	shader_uniform_int(shader_program, "texture2", 1);
 
-	// Declare the transformation matrix.
-	mat4 trans;
+	// Create the array of cube positions.
+	vec3 cube_positions[] = {
+		{ 0.0f, 0.0f, 0.0f },
+		{ 2.0f, 5.0f, -15.0f },
+		{ -1.5f, -2.2f, -2.5f },
+		{ -3.8f, -2.0f, -12.3f },
+		{ 2.4f, -0.4f, -3.5f },
+		{ -1.7f, 3.0f, -7.5f },
+		{ 1.3f, -2.0f, -2.5f },
+		{ 1.5f, 2.0f, -2.5f },
+		{ 1.5f, 0.2f, -1.5f },
+		{ -1.3f, 1.0f, -1.5f }
+	};
+
+	// Create the model matrix.
+	mat4 model;
+
+	// Create the view matrix.
+	mat4 view;
+
+	// Create the projection matrix.
+	mat4 projection;
+	glm_mat4_identity(projection);
+	glm_perspective(glm_rad(45.0f), 800.0f / 600.0f, 0.1f, 100.0f, projection);
 
 	// Main loop.
 	while (!glfwWindowShouldClose(window.handle))
@@ -147,24 +202,35 @@ main(int argc, char* argv[])
 
 		// Render some background color.
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// Bind the vao and the textures.
 		vao_bind(vao);
 		texture_bind(texture1, 0);
 		texture_bind(texture2, 1);
 
-		// First activate the shader program.
+		// Rotate the cube.
+		glm_mat4_identity(view);
+		glm_translate(view, (vec3){ 0.0f, 0.0f, -3.0f });
+		glm_rotate(view, (float)glfwGetTime() * glm_rad(50.0f), (vec3){ sin(glfwGetTime()), cos(glfwGetTime()), 0.0f });
+
+		// Pass the transformation matrices to the shader.
 		shader_bind(shader_program);
+		shader_uniform_mat4(shader_program, "view", view);
+		shader_uniform_mat4(shader_program, "projection", projection);
 
-		// Create a transformation matrix to rotate the rectangle.
-		glm_mat4_identity(trans);
-		glm_translate(trans, (vec3){ 0.5f, -0.5f, 0.0f });
-		glm_rotate(trans, (float)glfwGetTime(), (vec3){ 0.0f, 0.0f, 1.0f });
-		shader_uniform_mat4(shader_program, "transform", trans);
+		for (unsigned int i = 0; i < 10; i++)
+		{
+			float angle = 20.0f * i;
 
-		// Draw the triangles.
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+			glm_mat4_identity(model);
+			glm_translate(model, cube_positions[i]);
+			glm_rotate(model, glm_rad(angle), (vec3){ 1.0f, 0.3f, 0.5f });
+			shader_uniform_mat4(shader_program, "model", model);
+
+			// Draw the triangles.
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
 
 		// Check events and swap buffers.
 		glfwSwapBuffers(window.handle);
