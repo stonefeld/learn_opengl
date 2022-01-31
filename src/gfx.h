@@ -8,4 +8,6 @@
 
 #include <stb_image/stb_image.h>
 
+#include <cglm/cglm.h>
+
 #endif

@@ -1,5 +1,6 @@
 #include "gfx.h"
 #include "shader.h"
+#include "texture.h"
 #include "utils.h"
 #include "vao.h"
 #include "vbo.h"
@@ -84,66 +85,6 @@ main(int argc, char* argv[])
 	// Specify window viewport.
 	glfwSetFramebufferSizeCallback(window.handle, framebuffer_size_callback);
 
-	// Generate and bind the texture1.
-	unsigned int texture1;
-	glGenTextures(1, &texture1);
-	glBindTexture(GL_TEXTURE_2D, texture1);
-
-	// Set the texture wrapping/filtering options.
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	// Flip image vertically.
-	stbi_set_flip_vertically_on_load(true);
-
-	// Retrieve image data.
-	int width, height, nr_channels;
-	unsigned char* data = stbi_load("assets/images/container.jpg", &width, &height, &nr_channels, 0);
-
-	// Generate the texture with the image data.
-	if (data)
-	{
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
-	}
-	else
-	{
-		fprintf(stderr, "%s", "Failed to load texture\n");
-	}
-
-	// Free image memory.
-	stbi_image_free(data);
-
-	// Generate and bind the texture2.
-	unsigned int texture2;
-	glGenTextures(1, &texture2);
-	glBindTexture(GL_TEXTURE_2D, texture2);
-
-	// Set the texture wrapping/filtering options.
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	// Retrieve image data.
-	data = stbi_load("assets/images/awesomeface.png", &width, &height, &nr_channels, 0);
-
-	// Generate the texture with the image data.
-	if (data)
-	{
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
-	}
-	else
-	{
-		fprintf(stderr, "%s", "Failed to load texture\n");
-	}
-
-	// Free image memory.
-	stbi_image_free(data);
-
 	// Create the shader.
 	struct opengl_shader shader_program = shader_create("assets/shaders/vertex.glsl", "assets/shaders/fragment.glsl");
 
@@ -186,10 +127,17 @@ main(int argc, char* argv[])
 	vbo_unbind(vbo);
 	vbo_unbind(ebo);
 
+	// Instantiate the textures.
+	struct opengl_texture texture1 = texture_create("assets/images/container.jpg");
+	struct opengl_texture texture2 = texture_create("assets/images/awesomeface.png");
+
 	// Tell OpenGL which location each texture corresponds to.
 	shader_bind(shader_program);
-	shader_uniform_1i(shader_program, "texture1", 0);
-	shader_uniform_1i(shader_program, "texture2", 1);
+	shader_uniform_int(shader_program, "texture1", 0);
+	shader_uniform_int(shader_program, "texture2", 1);
+
+	// Declare the transformation matrix.
+	mat4 trans;
 
 	// Main loop.
 	while (!glfwWindowShouldClose(window.handle))
@@ -203,13 +151,17 @@ main(int argc, char* argv[])
 
 		// Bind the vao and the textures.
 		vao_bind(vao);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, texture1);
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, texture2);
+		texture_bind(texture1, 0);
+		texture_bind(texture2, 1);
 
 		// First activate the shader program.
 		shader_bind(shader_program);
+
+		// Create a transformation matrix to rotate the rectangle.
+		glm_mat4_identity(trans);
+		glm_translate(trans, (vec3){ 0.5f, -0.5f, 0.0f });
+		glm_rotate(trans, (float)glfwGetTime(), (vec3){ 0.0f, 0.0f, 1.0f });
+		shader_uniform_mat4(shader_program, "transform", trans);
 
 		// Draw the triangles.
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
