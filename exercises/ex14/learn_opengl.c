@@ -188,8 +188,6 @@ main(int argc, char* argv[])
 
 	// Create the view matrix.
 	mat4 view;
-	glm_mat4_identity(view);
-	glm_translate(view, (vec3){ 0.0f, 0.0f, -3.0f });
 
 	// Create the projection matrix.
 	mat4 projection;
@@ -210,6 +208,11 @@ main(int argc, char* argv[])
 		vao_bind(vao);
 		texture_bind(texture1, 0);
 		texture_bind(texture2, 1);
+
+		// Rotate the cube.
+		glm_mat4_identity(view);
+		glm_translate(view, (vec3){ 0.0f, 0.0f, -3.0f });
+		glm_rotate(view, (float)glfwGetTime() * glm_rad(50.0f), (vec3){ sin(glfwGetTime()), cos(glfwGetTime()), 0.0f });
 
 		// Pass the transformation matrices to the shader.
 		shader_bind(shader_program);

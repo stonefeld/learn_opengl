@@ -222,7 +222,14 @@ main(int argc, char* argv[])
 
 			glm_mat4_identity(model);
 			glm_translate(model, cube_positions[i]);
-			glm_rotate(model, glm_rad(angle), (vec3){ 1.0f, 0.3f, 0.5f });
+			if (i % 3 == 0 || i == 1)
+			{
+				glm_rotate(model, (float)glfwGetTime(), (vec3){ sin(glfwGetTime()), cos(glfwGetTime()), tan(glfwGetTime()) });
+			}
+			else
+			{
+				glm_rotate(model, glm_rad(angle), (vec3){ 1.0f, 0.3f, 0.5f });
+			}
 			shader_uniform_mat4(shader_program, "model", model);
 
 			// Draw the triangles.

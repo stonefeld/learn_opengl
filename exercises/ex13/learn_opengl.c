@@ -194,7 +194,7 @@ main(int argc, char* argv[])
 	// Create the projection matrix.
 	mat4 projection;
 	glm_mat4_identity(projection);
-	glm_perspective(glm_rad(45.0f), 800.0f / 600.0f, 0.1f, 100.0f, projection);
+	glm_perspective(glm_rad(90.0f), 600.0f / 200.0f, 0.1f, 100.0f, projection);
 
 	// Main loop.
 	while (!glfwWindowShouldClose(window.handle))
