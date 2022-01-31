@@ -34,3 +34,4 @@ clean:
 	rm -rf $(OUT)
 	cd ../../lib/glad && rm -f src/glad.o
 	cd ../../lib/glfw && cmake --build . --target clean
+	cd ../../lib/stb_image && rm -f src/stb_image.o
