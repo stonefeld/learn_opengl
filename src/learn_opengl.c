@@ -13,8 +13,25 @@ struct opengl_window
 	char* title;
 };
 
+vec3 camera_pos = { 0.0f, 0.0f, 3.0f };
+vec3 camera_front = { 0.0f, 0.0f, -1.0f };
+vec3 camera_target;
+vec3 camera_up = { 0.0f, 1.0f, 0.0f };
+float camera_fov = 45.0f;
+
+float cursor_pitch = 0.0f;
+float cursor_yaw = -90.0f;
+float cursor_last_x = 400.0f;
+float cursor_last_y = 300.0f;
+bool cursor_first = true;
+
+float delta_time = 0.0f; // Time between current frame and last frame.
+float last_frame = 0.0f; // Time of last frame.
+
 void framebuffer_size_callback(GLFWwindow* handle, int widht, int height);
+void mouse_callback(GLFWwindow* handle, double xpos, double ypos);
 void process_input(GLFWwindow* handle);
+void scroll_callback(GLFWwindow* handle, double xoffset, double yoffset);
 
 void
 framebuffer_size_callback(GLFWwindow* handle, int width, int height)
@@ -23,10 +40,80 @@ framebuffer_size_callback(GLFWwindow* handle, int width, int height)
 }
 
 void
+mouse_callback(GLFWwindow* handle, double xpos, double ypos)
+{
+	if (cursor_first)
+	{
+		cursor_last_x = xpos;
+		cursor_last_y = ypos;
+		cursor_first = false;
+	}
+
+	float xoffset = xpos - cursor_last_x;
+	float yoffset = cursor_last_y - ypos; // Reversed since y-coordinates range from bottom to top.
+	cursor_last_x = xpos;
+	cursor_last_y = ypos;
+
+	const float sensitivity = 0.1f;
+	xoffset *= sensitivity;
+	yoffset *= sensitivity;
+
+	cursor_yaw += xoffset;
+	cursor_pitch += yoffset;
+
+	if (cursor_pitch > 89.0f)
+		cursor_pitch = 89.0f;
+	if (cursor_pitch < -89.0f)
+		cursor_pitch = -89.0f;
+
+	vec3 direction = {
+		cos(glm_rad(cursor_yaw)) * cos(glm_rad(cursor_pitch)),
+		sin(glm_rad(cursor_pitch)),
+		sin(glm_rad(cursor_yaw)) * cos(glm_rad(cursor_pitch))
+	};
+
+	glm_normalize_to(direction, camera_front);
+}
+
+void
 process_input(GLFWwindow* handle)
 {
 	if (glfwGetKey(handle, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(handle, 1);
+
+	const float camera_speed = 2.5f * delta_time;
+
+	if (glfwGetKey(handle, GLFW_KEY_W) == GLFW_PRESS)
+		glm_vec3_muladds(camera_front, camera_speed, camera_pos);
+
+	if (glfwGetKey(handle, GLFW_KEY_S) == GLFW_PRESS)
+		glm_vec3_muladds(camera_front, -1.0f * camera_speed, camera_pos);
+
+	if (glfwGetKey(handle, GLFW_KEY_A) == GLFW_PRESS)
+	{
+		vec3 camera_tmp;
+		glm_vec3_cross(camera_front, camera_up, camera_tmp);
+		glm_normalize(camera_tmp);
+		glm_vec3_muladds(camera_tmp, -1.0f * camera_speed, camera_pos);
+	}
+
+	if (glfwGetKey(handle, GLFW_KEY_D) == GLFW_PRESS)
+	{
+		vec3 camera_tmp;
+		glm_vec3_cross(camera_front, camera_up, camera_tmp);
+		glm_normalize(camera_tmp);
+		glm_vec3_muladds(camera_tmp, camera_speed, camera_pos);
+	}
+}
+
+void
+scroll_callback(GLFWwindow* handle, double xoffset, double yoffset)
+{
+	camera_fov -= (float)yoffset;
+	if (camera_fov < 1.0f)
+		camera_fov = 1.0f;
+	if (camera_fov > 90.0f)
+		camera_fov = 90.0f;
 }
 
 int
@@ -86,10 +173,10 @@ main(int argc, char* argv[])
 
 	// Initialize GLFW.
 	if (!glfwInit())
-    {
-        fprintf(stderr, "%s", "Failed to initialize GLFW\n");
-        return(1);
-    }
+	{
+		fprintf(stderr, "%s", "Failed to initialize GLFW\n");
+		return(1);
+	}
 
 	// Specify GL version and profile.
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -125,9 +212,11 @@ main(int argc, char* argv[])
 
 	// Specify window viewport.
 	glfwSetFramebufferSizeCallback(window.handle, framebuffer_size_callback);
+	glfwSetCursorPosCallback(window.handle, mouse_callback);
+	glfwSetScrollCallback(window.handle, scroll_callback);
 
-	// Enable detph testing.
-	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_DEPTH_TEST); // Enable detph testing.
+	glfwSetInputMode(window.handle, GLFW_CURSOR, GLFW_CURSOR_DISABLED); // Tell OpenGL to hide and capture cursor when focused.
 
 	// Create the shader.
 	struct opengl_shader shader_program = shader_create("assets/shaders/vertex.glsl", "assets/shaders/fragment.glsl");
@@ -186,19 +275,20 @@ main(int argc, char* argv[])
 	// Create the model matrix.
 	mat4 model;
 
-	// Create the view matrix.
+	// Create the view matrix and the camera variables.
 	mat4 view;
-	glm_mat4_identity(view);
-	glm_translate(view, (vec3){ 0.0f, 0.0f, -3.0f });
 
 	// Create the projection matrix.
 	mat4 projection;
-	glm_mat4_identity(projection);
-	glm_perspective(glm_rad(45.0f), 800.0f / 600.0f, 0.1f, 100.0f, projection);
 
 	// Main loop.
 	while (!glfwWindowShouldClose(window.handle))
 	{
+		// Calculate delta_time.
+		float current_frame = glfwGetTime();
+		delta_time = current_frame - last_frame;
+		last_frame = current_frame;
+
 		// Check for input.
 		process_input(window.handle);
 
@@ -210,6 +300,14 @@ main(int argc, char* argv[])
 		vao_bind(vao);
 		texture_bind(texture1, 0);
 		texture_bind(texture2, 1);
+
+		// Calculate the projection.
+		glm_mat4_identity(projection);
+		glm_perspective(glm_rad(camera_fov), 800.0f / 600.0f, 0.1f, 100.0f, projection);
+
+		// Calculate the camera position.
+		glm_vec3_add(camera_pos, camera_front, camera_target);
+		glm_lookat(camera_pos, camera_target, camera_up, view);
 
 		// Pass the transformation matrices to the shader.
 		shader_bind(shader_program);
