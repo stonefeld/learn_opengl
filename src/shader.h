@@ -2,7 +2,6 @@
 #define SHADER_H
 
 #include "gfx.h"
-#include "types.h"
 #include "utils.h"
 
 struct opengl_shader

@@ -1,3 +1,4 @@
+#include "camera.h"
 #include "gfx.h"
 #include "shader.h"
 #include "texture.h"
@@ -13,14 +14,7 @@ struct opengl_window
 	char* title;
 };
 
-vec3 camera_pos = { 0.0f, 0.0f, 3.0f };
-vec3 camera_front = { 0.0f, 0.0f, -1.0f };
-vec3 camera_target;
-vec3 camera_up = { 0.0f, 1.0f, 0.0f };
-float camera_fov = 45.0f;
-
-float cursor_pitch = 0.0f;
-float cursor_yaw = -90.0f;
+struct opengl_camera camera;
 float cursor_last_x = 400.0f;
 float cursor_last_y = 300.0f;
 bool cursor_first = true;
@@ -54,25 +48,7 @@ mouse_callback(GLFWwindow* handle, double xpos, double ypos)
 	cursor_last_x = xpos;
 	cursor_last_y = ypos;
 
-	const float sensitivity = 0.1f;
-	xoffset *= sensitivity;
-	yoffset *= sensitivity;
-
-	cursor_yaw += xoffset;
-	cursor_pitch += yoffset;
-
-	if (cursor_pitch > 89.0f)
-		cursor_pitch = 89.0f;
-	if (cursor_pitch < -89.0f)
-		cursor_pitch = -89.0f;
-
-	vec3 direction = {
-		cos(glm_rad(cursor_yaw)) * cos(glm_rad(cursor_pitch)),
-		sin(glm_rad(cursor_pitch)),
-		sin(glm_rad(cursor_yaw)) * cos(glm_rad(cursor_pitch))
-	};
-
-	glm_normalize_to(direction, camera_front);
+	camera_process_mouse(&camera, xoffset, yoffset, true);
 }
 
 void
@@ -81,39 +57,21 @@ process_input(GLFWwindow* handle)
 	if (glfwGetKey(handle, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(handle, 1);
 
-	const float camera_speed = 2.5f * delta_time;
-
+	// Camera movement.
 	if (glfwGetKey(handle, GLFW_KEY_W) == GLFW_PRESS)
-		glm_vec3_muladds(camera_front, camera_speed, camera_pos);
-
+		camera_process_input(&camera, FORWARD, delta_time);
 	if (glfwGetKey(handle, GLFW_KEY_S) == GLFW_PRESS)
-		glm_vec3_muladds(camera_front, -1.0f * camera_speed, camera_pos);
-
+		camera_process_input(&camera, BACKWARD, delta_time);
 	if (glfwGetKey(handle, GLFW_KEY_A) == GLFW_PRESS)
-	{
-		vec3 camera_tmp;
-		glm_vec3_cross(camera_front, camera_up, camera_tmp);
-		glm_normalize(camera_tmp);
-		glm_vec3_muladds(camera_tmp, -1.0f * camera_speed, camera_pos);
-	}
-
+		camera_process_input(&camera, LEFT, delta_time);
 	if (glfwGetKey(handle, GLFW_KEY_D) == GLFW_PRESS)
-	{
-		vec3 camera_tmp;
-		glm_vec3_cross(camera_front, camera_up, camera_tmp);
-		glm_normalize(camera_tmp);
-		glm_vec3_muladds(camera_tmp, camera_speed, camera_pos);
-	}
+		camera_process_input(&camera, RIGHT, delta_time);
 }
 
 void
 scroll_callback(GLFWwindow* handle, double xoffset, double yoffset)
 {
-	camera_fov -= (float)yoffset;
-	if (camera_fov < 1.0f)
-		camera_fov = 1.0f;
-	if (camera_fov > 90.0f)
-		camera_fov = 90.0f;
+	camera_process_scroll(&camera, yoffset);
 }
 
 int
@@ -210,7 +168,7 @@ main(int argc, char* argv[])
 		return(1);
 	}
 
-	// Specify window viewport.
+	// Set OpenGL callbacks.
 	glfwSetFramebufferSizeCallback(window.handle, framebuffer_size_callback);
 	glfwSetCursorPosCallback(window.handle, mouse_callback);
 	glfwSetScrollCallback(window.handle, scroll_callback);
@@ -272,10 +230,13 @@ main(int argc, char* argv[])
 		{ -1.3f, 1.0f, -1.5f }
 	};
 
+	// Create the camera with default values.
+	camera = camera_create_default();
+
 	// Create the model matrix.
 	mat4 model;
 
-	// Create the view matrix and the camera variables.
+	// Create the view matrix.
 	mat4 view;
 
 	// Create the projection matrix.
@@ -303,11 +264,10 @@ main(int argc, char* argv[])
 
 		// Calculate the projection.
 		glm_mat4_identity(projection);
-		glm_perspective(glm_rad(camera_fov), 800.0f / 600.0f, 0.1f, 100.0f, projection);
+		glm_perspective(glm_rad(camera.fov), 800.0f / 600.0f, 0.1f, 100.0f, projection);
 
 		// Calculate the camera position.
-		glm_vec3_add(camera_pos, camera_front, camera_target);
-		glm_lookat(camera_pos, camera_target, camera_up, view);
+		camera_get_viewmatrix(camera, view);
 
 		// Pass the transformation matrices to the shader.
 		shader_bind(shader_program);
