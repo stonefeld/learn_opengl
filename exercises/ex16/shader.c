@@ -2,8 +2,8 @@
 
 static GLuint _shader_compile(const char* path, GLenum type);
 static void _shader_log_and_fail(GLint handle, const char* adverb, const char* path,
-                                 void (*getlog)(GLuint, GLsizei, GLsizei*, GLchar*),
-                                 void (*getiv)(GLuint, GLenum, GLint*));
+                          void (*getlog)(GLuint, GLsizei, GLsizei*, GLchar*),
+                          void (*getiv)(GLuint, GLenum, GLint*));
 
 static GLuint
 _shader_compile(const char* path, GLenum type)
@@ -56,8 +56,8 @@ _shader_compile(const char* path, GLenum type)
 
 static void
 _shader_log_and_fail(GLint handle, const char* adverb, const char* path,
-                     void (*getlog)(GLuint, GLsizei, GLsizei*, GLchar*),
-                     void (*getiv)(GLuint, GLenum, GLint*))
+              void (*getlog)(GLuint, GLsizei, GLsizei*, GLchar*),
+              void (*getiv)(GLuint, GLenum, GLint*))
 {
 	GLint loglen;
 	getiv(handle, GL_INFO_LOG_LENGTH, &loglen);

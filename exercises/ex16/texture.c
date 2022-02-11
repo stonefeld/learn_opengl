@@ -51,8 +51,8 @@ _texture_load_pixels(char* path, uint8_t** pixels_out, size_t* width_out, size_t
 	unsigned char* image = stbi_load(path, &width, &height, &channels, 0);
 	assert(image != NULL);
 
-	*pixels_out = malloc(width * height * channels);
-	memcpy(*pixels_out, image, width * height * channels);
+	*pixels_out = malloc(width * height * 4);
+	memcpy(*pixels_out, image, width * height * 4);
 	*width_out = width;
 	*height_out = height;
 	*channels_out = channels;
