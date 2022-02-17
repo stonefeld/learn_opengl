@@ -220,20 +220,6 @@ main(int argc, char* argv[])
 	// Create the camera with default values.
 	camera = camera_create_default();
 
-	// Create the model matrix.
-	mat4 model;
-	glm_mat4_identity(model);
-
-	// Create the view matrix.
-	mat4 view;
-
-	// Create the projection matrix.
-	mat4 projection;
-
-	// Send the light source position to the shader.
-	shader_bind(lighting_shader);
-	shader_uniform_vec3(lighting_shader, "lightPos", light_pos);
-
 	// Main loop.
 	while (!glfwWindowShouldClose(window.handle))
 	{
@@ -250,27 +236,45 @@ main(int argc, char* argv[])
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// Calculate the projection and the view matrices for the light source and all other objects.
+		mat4 model;
+		mat4 view;
+		mat4 projection;
+		glm_mat4_identity(model);
+		camera_get_viewmatrix(camera, view);
 		glm_mat4_identity(projection);
 		glm_perspective(glm_rad(camera.fov), 800.0f / 600.0f, 0.1f, 100.0f, projection);
-		camera_get_viewmatrix(camera, view);
 
 		// OTHER OBJECTS
 		// Bind the vao.
 		vao_bind(vao);
 
-		// Simply recreate the identity matrix for the cube.
-		glm_mat4_identity(model);
+		// Change the light color over time.
+		vec3 light_color;
+		vec3 diffuse_color;
+		vec3 ambient_color;
+		light_color[0] = sin(glfwGetTime() * 2.0f);
+		light_color[1] = sin(glfwGetTime() * 0.7f);
+		light_color[2] = sin(glfwGetTime() * 1.3f);
+		glm_vec3_mul(light_color, (vec3){ 0.5f, 0.5f, 0.5f }, diffuse_color);
+		glm_vec3_mul(diffuse_color, (vec3){ 0.2f, 0.2f, 0.2f }, ambient_color);
 
-
-		// Pass the camera position to the lighting_shader.
+		// Camera position uniform.
 		shader_bind(lighting_shader);
 		shader_uniform_vec3(lighting_shader, "viewPos", camera.position);
 
-		// Pass the corresponding light colors to the lighting_shader.
-		shader_uniform_vec3(lighting_shader, "lightColor", (vec3){ 1.0f, 1.0f, 1.0f });
-		shader_uniform_vec3(lighting_shader, "objectColor", (vec3){ 1.0f, 0.5f, 0.31f });
+		// Light source lighting uniforms.
+		shader_uniform_vec3(lighting_shader, "light.position", light_pos);
+		shader_uniform_vec3(lighting_shader, "light.ambient", ambient_color);
+		shader_uniform_vec3(lighting_shader, "light.diffuse", diffuse_color);
+		shader_uniform_vec3(lighting_shader, "light.specular", (vec3){ 1.0f, 1.0f, 1.0f });
 
-		// Pass the transformation matrices to the lighting_shader.
+		// Material lighting uniforms.
+		shader_uniform_vec3(lighting_shader, "material.ambient", (vec3){ 1.0f, 0.5f, 0.31f });
+		shader_uniform_vec3(lighting_shader, "material.diffuse", (vec3){ 1.0f, 0.5f, 0.31f });
+		shader_uniform_vec3(lighting_shader, "material.specular", (vec3){ 0.5f, 0.5f, 0.5f });
+		shader_uniform_float(lighting_shader, "material.shininess", 32.0f);
+
+		// Transformation matrices uniforms.
 		shader_uniform_mat4(lighting_shader, "model", model);
 		shader_uniform_mat4(lighting_shader, "view", view);
 		shader_uniform_mat4(lighting_shader, "projection", projection);
