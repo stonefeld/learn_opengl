@@ -81,54 +81,53 @@ main(int argc, char* argv[])
 {
 	// Define vertices for the triangles to draw a rectangle.
 	float vertices[] = {
-		// coords
 		// first face
-		-0.5f, -0.5f, -0.5f,
-		 0.5f, -0.5f, -0.5f,
-		 0.5f,  0.5f, -0.5f,
-		 0.5f,  0.5f, -0.5f,
-		-0.5f,  0.5f, -0.5f,
-		-0.5f, -0.5f, -0.5f,
+		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		 0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
 
 		// second face
-		-0.5f, -0.5f,  0.5f,
-		 0.5f, -0.5f,  0.5f,
-		 0.5f,  0.5f,  0.5f,
-		 0.5f,  0.5f,  0.5f,
-		-0.5f,  0.5f,  0.5f,
-		-0.5f, -0.5f,  0.5f,
+		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+		 0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+		 0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+		 0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
 
 		// third face
-		-0.5f,  0.5f,  0.5f,
-		-0.5f,  0.5f, -0.5f,
-		-0.5f, -0.5f, -0.5f,
-		-0.5f, -0.5f, -0.5f,
-		-0.5f, -0.5f,  0.5f,
-		-0.5f,  0.5f,  0.5f,
+		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+		-0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+		-0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
 
 		// fourth face
-		 0.5f,  0.5f,  0.5f,
-		 0.5f,  0.5f, -0.5f,
-		 0.5f, -0.5f, -0.5f,
-		 0.5f, -0.5f, -0.5f,
-		 0.5f, -0.5f,  0.5f,
-		 0.5f,  0.5f,  0.5f,
+		 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+		 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+		 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+		 0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
 
 		// fifth face
-		-0.5f, -0.5f, -0.5f,
-		 0.5f, -0.5f, -0.5f,
-		 0.5f, -0.5f,  0.5f,
-		 0.5f, -0.5f,  0.5f,
-		-0.5f, -0.5f,  0.5f,
-		-0.5f, -0.5f, -0.5f,
+		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+		 0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+		 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+		 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
 
 		// sixth face
-		-0.5f,  0.5f, -0.5f,
-		 0.5f,  0.5f, -0.5f,
-		 0.5f,  0.5f,  0.5f,
-		 0.5f,  0.5f,  0.5f,
-		-0.5f,  0.5f,  0.5f,
-		-0.5f,  0.5f, -0.5f
+		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+		 0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+		 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+		 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
 	};
 
 	// Initialize GLFW.
@@ -183,7 +182,7 @@ main(int argc, char* argv[])
 	struct opengl_shader light_cube_shader = shader_create("assets/shaders/light_cube_vert.glsl", "assets/shaders/light_cube_frag.glsl");
 
 	// Create an instance of a vertex buffer object.
-	struct opengl_vbo vbo = vbo_create(GL_ARRAY_BUFFER, false);
+	struct opengl_vbo cube_vbo = vbo_create(GL_ARRAY_BUFFER, false);
 
 	// Create an instance of a vertex array object.
 	struct opengl_vao vao = vao_create();
@@ -191,12 +190,13 @@ main(int argc, char* argv[])
 	// Bind the vao first so everything else gets bound to this vao.
 	vao_bind(vao);
 
-	// Bind the vbo and copy the previously defined vertex data into the vbo's memory.
-	vbo_bind(vbo);
-	vbo_buffer(vbo, sizeof(vertices), vertices);
+	// Bind the cube_vbo and copy the previously defined vertex data into the cube_vbo's memory.
+	vbo_bind(cube_vbo);
+	vbo_buffer(cube_vbo, sizeof(vertices), vertices);
 
 	// Position data.
-	vao_attr(vao, vbo, 0, 3, GL_FLOAT, 3 * sizeof(float), 0);
+	vao_attr(vao, cube_vbo, 0, 3, GL_FLOAT, 6 * sizeof(float), 0);
+	vao_attr(vao, cube_vbo, 1, 3, GL_FLOAT, 6 * sizeof(float), 3 * sizeof(float));
 
 #if 0
 	// Enable wireframe mode.
@@ -204,19 +204,18 @@ main(int argc, char* argv[])
 #endif
 
 	// Create the light source vao.
-	struct opengl_vao light_vao = vao_create();
+	struct opengl_vao light_cube_vao = vao_create();
 
-	// Bind the previous vbo and the new vao.
-	vao_bind(light_vao);
-	vbo_bind(vbo);
+	// Bind the previous cube_vbo and the new vao.
+	vao_bind(light_cube_vao);
+	vbo_bind(cube_vbo);
 
 	// Specify the light cube's vertex positions.
-	vao_attr(light_vao, vbo, 0, 3, GL_FLOAT, 3 * sizeof(float), 0);
+	vao_attr(light_cube_vao, cube_vbo, 0, 3, GL_FLOAT, 6 * sizeof(float), 0);
 
-	// Unbind vao first then vbo and ebo.
+	// Unbind vao first then cube_vbo and ebo.
 	vao_unbind();
-	vbo_unbind(vbo);
-
+	vbo_unbind(cube_vbo);
 
 	// Create the camera with default values.
 	camera = camera_create_default();
@@ -230,6 +229,10 @@ main(int argc, char* argv[])
 
 	// Create the projection matrix.
 	mat4 projection;
+
+	// Send the light source position to the shader.
+	shader_bind(lighting_shader);
+	shader_uniform_vec3(lighting_shader, "lightPos", light_pos);
 
 	// Main loop.
 	while (!glfwWindowShouldClose(window.handle))
@@ -258,13 +261,16 @@ main(int argc, char* argv[])
 		// Simply recreate the identity matrix for the cube.
 		glm_mat4_identity(model);
 
-		// Pass the corresponding light colors to the lighting_shader.
+
+		// Pass the camera position to the lighting_shader.
 		shader_bind(lighting_shader);
+		shader_uniform_vec3(lighting_shader, "viewPos", camera.position);
+
+		// Pass the corresponding light colors to the lighting_shader.
 		shader_uniform_vec3(lighting_shader, "lightColor", (vec3){ 1.0f, 1.0f, 1.0f });
 		shader_uniform_vec3(lighting_shader, "objectColor", (vec3){ 1.0f, 0.5f, 0.31f });
 
-		// Pass the transformation matrices to the shader.
-		shader_bind(lighting_shader);
+		// Pass the transformation matrices to the lighting_shader.
 		shader_uniform_mat4(lighting_shader, "model", model);
 		shader_uniform_mat4(lighting_shader, "view", view);
 		shader_uniform_mat4(lighting_shader, "projection", projection);
@@ -274,7 +280,7 @@ main(int argc, char* argv[])
 
 		// LIGHT CUBE
 		// Bind the light cube vao.
-		vao_bind(light_vao);
+		vao_bind(light_cube_vao);
 
 		// Calculate the model matrix for the light source.
 		glm_mat4_identity(model);
@@ -296,7 +302,7 @@ main(int argc, char* argv[])
 
 	// Deallocate buffers and shader programs.
 	vao_destroy(vao);
-	vbo_destroy(vbo);
+	vbo_destroy(cube_vbo);
 	shader_destroy(lighting_shader);
 
 	// Terminate the program and close everything properly.
