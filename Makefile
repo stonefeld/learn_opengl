@@ -4,7 +4,7 @@ CFLAGS += -Isrc -Ilib/glad/include -Ilib/glfw/include -Ilib/stb_image/include -I
 LDFLAGS = lib/glad/src/glad.o lib/glfw/src/libglfw3.a lib/stb_image/src/stb_image.o lib/cglm/libcglm.a -lm
 
 ifeq ($(OS), Windows_NT)
-	LDFLAGS += -mwindows -lpthread
+	LDFLAGS += -mwindows -mconsole -lpthread
 else
 	UNAME_S := $(shell uname -s)
 	ifeq ($(UNAME_S), Linux)
