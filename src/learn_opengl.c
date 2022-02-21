@@ -219,6 +219,20 @@ main(int argc, char* argv[])
 	// Create the camera with default values.
 	camera = camera_create_default();
 
+	// Define the cube positions for the scene.
+	vec3 cube_positions[] = {
+		{  0.0f,  0.0f,  0.0f  },
+		{  2.0f,  5.0f, -15.0f },
+		{ -1.5f, -2.2f, -2.5f  },
+		{ -3.8f, -2.0f, -12.3f },
+		{  2.4f, -0.4f, -3.5f  },
+		{ -1.7f,  3.0f, -7.5f  },
+		{  1.3f, -2.0f, -2.5f  },
+		{  1.5f,  2.0f, -2.5f  },
+		{  1.5f,  0.2f, -1.5f  },
+		{ -1.3f,  1.0f, -1.5f  }
+	};
+
 	// Main loop.
 	while (!glfwWindowShouldClose(window.handle))
 	{
@@ -238,7 +252,6 @@ main(int argc, char* argv[])
 		mat4 model;
 		mat4 view;
 		mat4 projection;
-		glm_mat4_identity(model);
 		camera_get_viewmatrix(camera, view);
 		glm_mat4_identity(projection);
 		glm_perspective(glm_rad(camera.fov), 800.0f / 600.0f, 0.1f, 100.0f, projection);
@@ -252,10 +265,18 @@ main(int argc, char* argv[])
 		shader_uniform_vec3(cube_shader, "viewPos", camera.position);
 
 		// Light source lighting uniforms.
-		shader_uniform_vec3(cube_shader, "light.position", light_pos);
-		shader_uniform_vec3(cube_shader, "light.ambient", (vec3){ 0.2f, 0.2f, 0.2f });
-		shader_uniform_vec3(cube_shader, "light.diffuse", (vec3){ 0.5f, 0.5f, 0.5f });
+		// shader_uniform_vec3(cube_shader, "light.position", light_pos);
+		// shader_uniform_vec3(cube_shader, "light.direction", (vec3){ -0.2f, -1.0f, -0.3f });
+		shader_uniform_vec3(cube_shader, "light.position", camera.position);
+		shader_uniform_vec3(cube_shader, "light.direction", camera.front);
+		shader_uniform_float(cube_shader, "light.cutOff", cos(glm_rad(12.5f)));
+		shader_uniform_float(cube_shader, "light.cutOffOuter", cos(glm_rad(17.5f)));
+		shader_uniform_vec3(cube_shader, "light.ambient", (vec3){ 0.1f, 0.1f, 0.1f });
+		shader_uniform_vec3(cube_shader, "light.diffuse", (vec3){ 0.8f, 0.8f, 0.8f });
 		shader_uniform_vec3(cube_shader, "light.specular", (vec3){ 1.0f, 1.0f, 1.0f });
+		shader_uniform_float(cube_shader, "light.constant", 1.0f);
+		shader_uniform_float(cube_shader, "light.linear", 0.09f);
+		shader_uniform_float(cube_shader, "light.quadratic", 0.032f);
 
 		// Bind the cube texture for the diffuse attribute of the material.
 		texture_bind(cube_texture, 0);
@@ -264,16 +285,28 @@ main(int argc, char* argv[])
 		// Material lighting uniforms.
 		shader_uniform_int(cube_shader, "material.diffuse", 0);
 		shader_uniform_int(cube_shader, "material.specular", 1);
-		shader_uniform_float(cube_shader, "material.shininess", 64.0f);
+		shader_uniform_float(cube_shader, "material.shininess", 32.0f);
 
-		// Transformation matrices uniforms.
-		shader_uniform_mat4(cube_shader, "model", model);
+		// Upload transformation matrices except model matrix.
 		shader_uniform_mat4(cube_shader, "view", view);
 		shader_uniform_mat4(cube_shader, "projection", projection);
 
-		// Draw the triangles.
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		for (unsigned int i = 0; i < 10; i++)
+		{
+			// Calculate the model matrix for each cube.
+			glm_mat4_identity(model);
+			glm_translate(model, cube_positions[i]);
+			float angle = 20.0f * i;
+			glm_rotate(model, glm_rad(angle), (vec3){ 1.0f, 0.3f, 0.5f });
 
+			// Upload the model matix.
+			shader_uniform_mat4(cube_shader, "model", model);
+
+			// Draw the triangles.
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
+
+#if 0
 		// LIGHT CUBE
 		// Bind the light cube vao.
 		vao_bind(light_cube_vao);
@@ -290,6 +323,7 @@ main(int argc, char* argv[])
 
 		// Draw the light cube.
 		glDrawArrays(GL_TRIANGLES, 0, 36);
+#endif
 
 		// Check events and swap buffers.
 		glfwSwapBuffers(window.handle);
