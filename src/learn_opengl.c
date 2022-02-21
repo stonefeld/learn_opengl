@@ -79,55 +79,49 @@ scroll_callback(GLFWwindow* handle, double xoffset, double yoffset)
 int
 main(int argc, char* argv[])
 {
-	// Define vertices for the triangles to draw a rectangle.
 	float vertices[] = {
-		// first face
-		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-		 0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-		 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-		 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		// positions          // normals           // texture coords
+		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
+		 0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 0.0f,
+		 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
+		 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
 
-		// second face
-		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-		 0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-		 0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-		 0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 0.0f,
+		 0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 0.0f,
+		 0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 1.0f,
+		 0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 1.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 1.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 0.0f,
 
-		// third face
-		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-		-0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-		-0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
+		-0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+		-0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
+		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
 
-		// fourth face
-		 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-		 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-		 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-		 0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
+		 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+		 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+		 0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
 
-		// fifth face
-		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-		 0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-		 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-		 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
+		 0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 1.0f,
+		 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
+		 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 0.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
 
-		// sixth face
-		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-		 0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-		 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-		 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
+		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f,
+		 0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 1.0f,
+		 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
+		 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 0.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f
 	};
 
 	// Initialize GLFW.
@@ -178,7 +172,7 @@ main(int argc, char* argv[])
 	glfwSetInputMode(window.handle, GLFW_CURSOR, GLFW_CURSOR_DISABLED); // Tell OpenGL to hide and capture cursor when focused.
 
 	// Create the shaders.
-	struct opengl_shader lighting_shader = shader_create("assets/shaders/lighting_vert.glsl", "assets/shaders/lighting_frag.glsl");
+	struct opengl_shader cube_shader = shader_create("assets/shaders/lighting_vert.glsl", "assets/shaders/lighting_frag.glsl");
 	struct opengl_shader light_cube_shader = shader_create("assets/shaders/light_cube_vert.glsl", "assets/shaders/light_cube_frag.glsl");
 
 	// Create an instance of a vertex buffer object.
@@ -194,9 +188,10 @@ main(int argc, char* argv[])
 	vbo_bind(cube_vbo);
 	vbo_buffer(cube_vbo, sizeof(vertices), vertices);
 
-	// Position data.
-	vao_attr(vao, cube_vbo, 0, 3, GL_FLOAT, 6 * sizeof(float), 0);
-	vao_attr(vao, cube_vbo, 1, 3, GL_FLOAT, 6 * sizeof(float), 3 * sizeof(float));
+	// Tell OpenGL how to read the data.
+	vao_attr(vao, cube_vbo, 0, 3, GL_FLOAT, 8 * sizeof(float), 0);
+	vao_attr(vao, cube_vbo, 1, 3, GL_FLOAT, 8 * sizeof(float), 3 * sizeof(float));
+	vao_attr(vao, cube_vbo, 2, 2, GL_FLOAT, 8 * sizeof(float), 6 * sizeof(float));
 
 #if 0
 	// Enable wireframe mode.
@@ -211,11 +206,15 @@ main(int argc, char* argv[])
 	vbo_bind(cube_vbo);
 
 	// Specify the light cube's vertex positions.
-	vao_attr(light_cube_vao, cube_vbo, 0, 3, GL_FLOAT, 6 * sizeof(float), 0);
+	vao_attr(light_cube_vao, cube_vbo, 0, 3, GL_FLOAT, 8 * sizeof(float), 0);
 
 	// Unbind vao first then cube_vbo and ebo.
 	vao_unbind();
 	vbo_unbind(cube_vbo);
+
+	// Create the new cube texture.
+	struct opengl_texture cube_texture = texture_create("assets/images/container2.png");
+	struct opengl_texture cube_specular_map = texture_create("assets/images/container2_specular.png");
 
 	// Create the camera with default values.
 	camera = camera_create_default();
@@ -248,36 +247,29 @@ main(int argc, char* argv[])
 		// Bind the vao.
 		vao_bind(vao);
 
-		// Change the light color over time.
-		vec3 light_color;
-		vec3 diffuse_color;
-		vec3 ambient_color;
-		light_color[0] = sin(glfwGetTime() * 2.0f);
-		light_color[1] = sin(glfwGetTime() * 0.7f);
-		light_color[2] = sin(glfwGetTime() * 1.3f);
-		glm_vec3_mul(light_color, (vec3){ 0.5f, 0.5f, 0.5f }, diffuse_color);
-		glm_vec3_mul(diffuse_color, (vec3){ 0.2f, 0.2f, 0.2f }, ambient_color);
-
 		// Camera position uniform.
-		shader_bind(lighting_shader);
-		shader_uniform_vec3(lighting_shader, "viewPos", camera.position);
+		shader_bind(cube_shader);
+		shader_uniform_vec3(cube_shader, "viewPos", camera.position);
 
 		// Light source lighting uniforms.
-		shader_uniform_vec3(lighting_shader, "light.position", light_pos);
-		shader_uniform_vec3(lighting_shader, "light.ambient", ambient_color);
-		shader_uniform_vec3(lighting_shader, "light.diffuse", diffuse_color);
-		shader_uniform_vec3(lighting_shader, "light.specular", (vec3){ 1.0f, 1.0f, 1.0f });
+		shader_uniform_vec3(cube_shader, "light.position", light_pos);
+		shader_uniform_vec3(cube_shader, "light.ambient", (vec3){ 0.2f, 0.2f, 0.2f });
+		shader_uniform_vec3(cube_shader, "light.diffuse", (vec3){ 0.5f, 0.5f, 0.5f });
+		shader_uniform_vec3(cube_shader, "light.specular", (vec3){ 1.0f, 1.0f, 1.0f });
+
+		// Bind the cube texture for the diffuse attribute of the material.
+		texture_bind(cube_texture, 0);
+		texture_bind(cube_specular_map, 1);
 
 		// Material lighting uniforms.
-		shader_uniform_vec3(lighting_shader, "material.ambient", (vec3){ 1.0f, 0.5f, 0.31f });
-		shader_uniform_vec3(lighting_shader, "material.diffuse", (vec3){ 1.0f, 0.5f, 0.31f });
-		shader_uniform_vec3(lighting_shader, "material.specular", (vec3){ 0.5f, 0.5f, 0.5f });
-		shader_uniform_float(lighting_shader, "material.shininess", 32.0f);
+		shader_uniform_int(cube_shader, "material.diffuse", 0);
+		shader_uniform_int(cube_shader, "material.specular", 1);
+		shader_uniform_float(cube_shader, "material.shininess", 64.0f);
 
 		// Transformation matrices uniforms.
-		shader_uniform_mat4(lighting_shader, "model", model);
-		shader_uniform_mat4(lighting_shader, "view", view);
-		shader_uniform_mat4(lighting_shader, "projection", projection);
+		shader_uniform_mat4(cube_shader, "model", model);
+		shader_uniform_mat4(cube_shader, "view", view);
+		shader_uniform_mat4(cube_shader, "projection", projection);
 
 		// Draw the triangles.
 		glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -307,7 +299,7 @@ main(int argc, char* argv[])
 	// Deallocate buffers and shader programs.
 	vao_destroy(vao);
 	vbo_destroy(cube_vbo);
-	shader_destroy(lighting_shader);
+	shader_destroy(cube_shader);
 
 	// Terminate the program and close everything properly.
 	glfwTerminate();
