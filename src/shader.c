@@ -64,7 +64,7 @@ _shader_log_and_fail(GLint handle, const char* adverb, const char* path,
 
 	char* logtext = calloc(1, loglen);
 	getlog(handle, loglen, NULL, logtext);
-	fprintf(stderr, "Error %s shader at %s:\n\t-> %s", adverb, path, logtext);
+	fprintf(stderr, "Error %s shader at %s:\n%s", adverb, path, logtext);
 
 	free(logtext);
 	exit(1);
@@ -126,12 +126,12 @@ shader_uniform_float(struct opengl_shader self, const char* name, float v)
 
 // ----------------------------------------------------------------------------
 void
-shader_unifrom_vec2(struct opengl_shader self, const char* name, vec2 v)
+shader_uniform_vec2(struct opengl_shader self, const char* name, vec2 v)
 {
     glUniform2fv(glGetUniformLocation(self.handle, name), 1, &v[0]);
 }
 void
-shader_unfirom_float2(struct opengl_shader self, const char* name, float x, float y)
+shader_uniform_float2(struct opengl_shader self, const char* name, float x, float y)
 {
     glUniform2f(glGetUniformLocation(self.handle, name), x, y);
 }

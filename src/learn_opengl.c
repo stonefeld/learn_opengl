@@ -19,8 +19,6 @@ float cursor_last_x = 400.0f;
 float cursor_last_y = 300.0f;
 bool cursor_first = true;
 
-vec3 light_pos = { 1.2f, 1.0f, 2.0f };
-
 float delta_time = 0.0f; // Time between current frame and last frame.
 float last_frame = 0.0f; // Time of last frame.
 
@@ -88,12 +86,12 @@ main(int argc, char* argv[])
 		-0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 1.0f,
 		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
 
-		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 0.0f,
-		 0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 0.0f,
-		 0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 1.0f,
-		 0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 1.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 1.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 0.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f, 0.0f,
+		 0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f, 0.0f,
+		 0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f, 1.0f,
+		 0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f, 1.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f, 1.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f, 0.0f,
 
 		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
 		-0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
@@ -179,19 +177,19 @@ main(int argc, char* argv[])
 	struct opengl_vbo cube_vbo = vbo_create(GL_ARRAY_BUFFER, false);
 
 	// Create an instance of a vertex array object.
-	struct opengl_vao vao = vao_create();
+	struct opengl_vao cube_vao = vao_create();
 
 	// Bind the vao first so everything else gets bound to this vao.
-	vao_bind(vao);
+	vao_bind(cube_vao);
 
 	// Bind the cube_vbo and copy the previously defined vertex data into the cube_vbo's memory.
 	vbo_bind(cube_vbo);
 	vbo_buffer(cube_vbo, sizeof(vertices), vertices);
 
 	// Tell OpenGL how to read the data.
-	vao_attr(vao, cube_vbo, 0, 3, GL_FLOAT, 8 * sizeof(float), 0);
-	vao_attr(vao, cube_vbo, 1, 3, GL_FLOAT, 8 * sizeof(float), 3 * sizeof(float));
-	vao_attr(vao, cube_vbo, 2, 2, GL_FLOAT, 8 * sizeof(float), 6 * sizeof(float));
+	vao_attr(cube_vao, cube_vbo, 0, 3, GL_FLOAT, 8 * sizeof(float), 0);
+	vao_attr(cube_vao, cube_vbo, 1, 3, GL_FLOAT, 8 * sizeof(float), 3 * sizeof(float));
+	vao_attr(cube_vao, cube_vbo, 2, 2, GL_FLOAT, 8 * sizeof(float), 6 * sizeof(float));
 
 #if 0
 	// Enable wireframe mode.
@@ -233,6 +231,14 @@ main(int argc, char* argv[])
 		{ -1.3f,  1.0f, -1.5f  }
 	};
 
+	// Define the point light positions for the scene.
+	vec3 pointlight_positions[] = {
+		{  0.7f,  0.2f,  2.0f  },
+		{  2.3f, -3.3f, -4.0f  },
+		{ -4.0f,  2.0f, -12.0f },
+		{  0.0f,  0.0f, -3.0f  }
+	};
+
 	// Main loop.
 	while (!glfwWindowShouldClose(window.handle))
 	{
@@ -248,6 +254,75 @@ main(int argc, char* argv[])
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		// OTHER OBJECTS
+		// Camera position uniform.
+		shader_bind(cube_shader);
+		shader_uniform_vec3(cube_shader, "u_viewpos", camera.position);
+
+		// Light source lighting uniforms.
+		// directional light
+		shader_uniform_vec3(cube_shader, "u_dirlight.direction", (vec3){ -0.2f, -1.0f, -0.3f });
+		shader_uniform_vec3(cube_shader, "u_dirlight.ambient", (vec3){ 0.05f, 0.05f, 0.05f });
+		shader_uniform_vec3(cube_shader, "u_dirlight.diffuse", (vec3){ 0.4f, 0.4f, 0.4f });
+		shader_uniform_vec3(cube_shader, "u_dirlight.specular", (vec3){ 0.5f, 0.5f, 0.5f });
+
+		// point light 1
+		shader_uniform_vec3(cube_shader, "u_pointlights[0].position", pointlight_positions[0]);
+		shader_uniform_vec3(cube_shader, "u_pointlights[0].ambient", (vec3){ 0.05f, 0.05f, 0.05f });
+		shader_uniform_vec3(cube_shader, "u_pointlights[0].diffuse", (vec3){ 0.8f, 0.8f, 0.8f });
+		shader_uniform_vec3(cube_shader, "u_pointlights[0].specular", (vec3){ 1.0f, 1.0f, 1.0f });
+		shader_uniform_float(cube_shader, "u_pointlights[0].constant", 1.0f);
+		shader_uniform_float(cube_shader, "u_pointlights[0].linear", 0.09f);
+		shader_uniform_float(cube_shader, "u_pointlights[0].quadratic", 0.032f);
+
+		// point light 2
+		shader_uniform_vec3(cube_shader, "u_pointlights[1].position", pointlight_positions[1]);
+		shader_uniform_vec3(cube_shader, "u_pointlights[1].ambient", (vec3){ 0.05f, 0.05f, 0.05f });
+		shader_uniform_vec3(cube_shader, "u_pointlights[1].diffuse", (vec3){ 0.8f, 0.8f, 0.8f });
+		shader_uniform_vec3(cube_shader, "u_pointlights[1].specular", (vec3){ 1.0f, 1.0f, 1.0f });
+		shader_uniform_float(cube_shader, "u_pointlights[1].constant", 1.0f);
+		shader_uniform_float(cube_shader, "u_pointlights[1].linear", 0.09f);
+		shader_uniform_float(cube_shader, "u_pointlights[1].quadratic", 0.032f);
+
+		// point light 3
+		shader_uniform_vec3(cube_shader, "u_pointlights[2].position", pointlight_positions[2]);
+		shader_uniform_vec3(cube_shader, "u_pointlights[2].ambient", (vec3){ 0.05f, 0.05f, 0.05f });
+		shader_uniform_vec3(cube_shader, "u_pointlights[2].diffuse", (vec3){ 0.8f, 0.8f, 0.8f });
+		shader_uniform_vec3(cube_shader, "u_pointlights[2].specular", (vec3){ 1.0f, 1.0f, 1.0f });
+		shader_uniform_float(cube_shader, "u_pointlights[2].constant", 1.0f);
+		shader_uniform_float(cube_shader, "u_pointlights[2].linear", 0.09f);
+		shader_uniform_float(cube_shader, "u_pointlights[2].quadratic", 0.032f);
+
+		// point light 4
+		shader_uniform_vec3(cube_shader, "u_pointlights[3].position", pointlight_positions[3]);
+		shader_uniform_vec3(cube_shader, "u_pointlights[3].ambient", (vec3){ 0.05f, 0.05f, 0.05f });
+		shader_uniform_vec3(cube_shader, "u_pointlights[3].diffuse", (vec3){ 0.8f, 0.8f, 0.8f });
+		shader_uniform_vec3(cube_shader, "u_pointlights[3].specular", (vec3){ 1.0f, 1.0f, 1.0f });
+		shader_uniform_float(cube_shader, "u_pointlights[3].constant", 1.0f);
+		shader_uniform_float(cube_shader, "u_pointlights[3].linear", 0.09f);
+		shader_uniform_float(cube_shader, "u_pointlights[3].quadratic", 0.032f);
+
+		// spot light
+		shader_uniform_vec3(cube_shader, "u_spotlight.position", camera.position);
+		shader_uniform_vec3(cube_shader, "u_spotlight.direction", camera.front);
+		shader_uniform_vec3(cube_shader, "u_spotlight.ambient", (vec3){ 0.05f, 0.05f, 0.05f });
+		shader_uniform_vec3(cube_shader, "u_spotlight.diffuse", (vec3){ 0.4f, 0.4f, 0.4f });
+		shader_uniform_vec3(cube_shader, "u_spotlight.specular", (vec3){ 0.5f, 0.5f, 0.5f });
+		shader_uniform_float(cube_shader, "u_spotlight.constant", 1.0f);
+		shader_uniform_float(cube_shader, "u_spotlight.linear", 0.09f);
+		shader_uniform_float(cube_shader, "u_spotlight.quadratic", 0.032f);
+		shader_uniform_float(cube_shader, "u_spotlight.cutoff", cos(glm_rad(12.5)));
+		shader_uniform_float(cube_shader, "u_spotlight.cutoff_outer", cos(glm_rad(17.5)));
+
+		// Bind the cube texture for the diffuse attribute of the material.
+		texture_bind(cube_texture, 0);
+		texture_bind(cube_specular_map, 1);
+
+		// Material lighting uniforms.
+		shader_uniform_int(cube_shader, "u_material.diffuse", 0);
+		shader_uniform_int(cube_shader, "u_material.specular", 1);
+		shader_uniform_float(cube_shader, "u_material.shininess", 32.0f);
+
 		// Calculate the projection and the view matrices for the light source and all other objects.
 		mat4 model;
 		mat4 view;
@@ -256,41 +331,14 @@ main(int argc, char* argv[])
 		glm_mat4_identity(projection);
 		glm_perspective(glm_rad(camera.fov), 800.0f / 600.0f, 0.1f, 100.0f, projection);
 
-		// OTHER OBJECTS
-		// Bind the vao.
-		vao_bind(vao);
-
-		// Camera position uniform.
-		shader_bind(cube_shader);
-		shader_uniform_vec3(cube_shader, "viewPos", camera.position);
-
-		// Light source lighting uniforms.
-		// shader_uniform_vec3(cube_shader, "light.position", light_pos);
-		// shader_uniform_vec3(cube_shader, "light.direction", (vec3){ -0.2f, -1.0f, -0.3f });
-		shader_uniform_vec3(cube_shader, "light.position", camera.position);
-		shader_uniform_vec3(cube_shader, "light.direction", camera.front);
-		shader_uniform_float(cube_shader, "light.cutOff", cos(glm_rad(12.5f)));
-		shader_uniform_float(cube_shader, "light.cutOffOuter", cos(glm_rad(17.5f)));
-		shader_uniform_vec3(cube_shader, "light.ambient", (vec3){ 0.1f, 0.1f, 0.1f });
-		shader_uniform_vec3(cube_shader, "light.diffuse", (vec3){ 0.8f, 0.8f, 0.8f });
-		shader_uniform_vec3(cube_shader, "light.specular", (vec3){ 1.0f, 1.0f, 1.0f });
-		shader_uniform_float(cube_shader, "light.constant", 1.0f);
-		shader_uniform_float(cube_shader, "light.linear", 0.09f);
-		shader_uniform_float(cube_shader, "light.quadratic", 0.032f);
-
-		// Bind the cube texture for the diffuse attribute of the material.
-		texture_bind(cube_texture, 0);
-		texture_bind(cube_specular_map, 1);
-
-		// Material lighting uniforms.
-		shader_uniform_int(cube_shader, "material.diffuse", 0);
-		shader_uniform_int(cube_shader, "material.specular", 1);
-		shader_uniform_float(cube_shader, "material.shininess", 32.0f);
-
 		// Upload transformation matrices except model matrix.
-		shader_uniform_mat4(cube_shader, "view", view);
-		shader_uniform_mat4(cube_shader, "projection", projection);
+		shader_uniform_mat4(cube_shader, "u_view", view);
+		shader_uniform_mat4(cube_shader, "u_projection", projection);
 
+		// Bind the vao.
+		vao_bind(cube_vao);
+
+		// Render the containers.
 		for (unsigned int i = 0; i < 10; i++)
 		{
 			// Calculate the model matrix for each cube.
@@ -299,31 +347,36 @@ main(int argc, char* argv[])
 			float angle = 20.0f * i;
 			glm_rotate(model, glm_rad(angle), (vec3){ 1.0f, 0.3f, 0.5f });
 
-			// Upload the model matix.
-			shader_uniform_mat4(cube_shader, "model", model);
+			// Upload the model matrix.
+			shader_uniform_mat4(cube_shader, "u_model", model);
 
 			// Draw the triangles.
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
 
-#if 0
 		// LIGHT CUBE
+		// Transformation matrices uniforms.
+		shader_bind(light_cube_shader);
+		shader_uniform_mat4(light_cube_shader, "u_view", view);
+		shader_uniform_mat4(light_cube_shader, "u_projection", projection);
+
 		// Bind the light cube vao.
 		vao_bind(light_cube_vao);
 
-		// Calculate the model matrix for the light source.
-		glm_mat4_identity(model);
-		glm_translate(model, light_pos);
-		glm_scale(model, (vec3){ 0.2f, 0.2f, 0.2f });
+		// Render the point lights.
+		for (unsigned int i = 0; i < 4; i++)
+		{
+			// Calculate the model matrix for each point light.
+			glm_mat4_identity(model);
+			glm_translate(model, pointlight_positions[i]);
+			glm_scale(model, (vec3){ 0.2f, 0.2f, 0.2f });
 
-		shader_bind(light_cube_shader);
-		shader_uniform_mat4(light_cube_shader, "model", model);
-		shader_uniform_mat4(light_cube_shader, "view", view);
-		shader_uniform_mat4(light_cube_shader, "projection", projection);
+			// Upload the model matrix.
+			shader_uniform_mat4(light_cube_shader, "u_model", model);
 
-		// Draw the light cube.
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-#endif
+			// Draw the light cube.
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
 
 		// Check events and swap buffers.
 		glfwSwapBuffers(window.handle);
@@ -331,7 +384,7 @@ main(int argc, char* argv[])
 	}
 
 	// Deallocate buffers and shader programs.
-	vao_destroy(vao);
+	vao_destroy(cube_vao);
 	vbo_destroy(cube_vbo);
 	shader_destroy(cube_shader);
 

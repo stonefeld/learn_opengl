@@ -20,7 +20,7 @@ void shader_uniform_int(struct opengl_shader self, const char* name, int v);
 void shader_uniform_float(struct opengl_shader self, const char* name, float v);
 
 // N-dimension vectors.
-void shader_unifrom_vec2(struct opengl_shader self, const char* name, vec2 v);
+void shader_uniform_vec2(struct opengl_shader self, const char* name, vec2 v);
 void shader_uniform_float2(struct opengl_shader self, const char* name, float x, float y);
 void shader_uniform_vec3(struct opengl_shader self, const char* name, vec3 v);
 void shader_uniform_float3(struct opengl_shader self, const char* name, float x, float y, float z);
