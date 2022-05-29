@@ -1,12 +1,12 @@
 #include "texture.h"
 
-static struct opengl_texture _texture_create_from_pixels(uint8_t* pixels, size_t width, size_t height, size_t channels);
+static Texture _texture_create_from_pixels(uint8_t* pixels, size_t width, size_t height, size_t channels);
 static void _texture_load_pixels(char* path, uint8_t** pixels_out, size_t* width_out, size_t* height_out, size_t* channels_out);
 
-static struct opengl_texture
+static Texture
 _texture_create_from_pixels(uint8_t* pixels, size_t width, size_t height, size_t channels)
 {
-	struct opengl_texture self = {
+	Texture self = {
 		.size.x = width,
 		.size.y = height
 	};
@@ -22,15 +22,12 @@ _texture_create_from_pixels(uint8_t* pixels, size_t width, size_t height, size_t
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	// Generate the texture with the image data.
-	switch (channels)
-	{
-		case 3:
-		{
+	switch (channels) {
+		case 3: {
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, pixels);
 		} break;
 
-		case 4:
-		{
+		case 4: {
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 		} break;
 	}
@@ -60,26 +57,26 @@ _texture_load_pixels(char* path, uint8_t** pixels_out, size_t* width_out, size_t
 	stbi_image_free(image);
 }
 
-struct opengl_texture
+Texture
 texture_create(char* path)
 {
 	uint8_t* pixels;
 	size_t width, height, channels;
 
 	_texture_load_pixels(path, &pixels, &width, &height, &channels);
-	struct opengl_texture self = _texture_create_from_pixels(pixels, width, height, channels);
+	Texture self = _texture_create_from_pixels(pixels, width, height, channels);
 	free(pixels);
 	return(self);
 }
 
 void
-texture_destroy(struct opengl_texture self)
+texture_destroy(Texture self)
 {
 	glDeleteTextures(1, &self.handle);
 }
 
 void
-texture_bind(struct opengl_texture self, int unit)
+texture_bind(Texture self, int unit)
 {
 	glActiveTexture(GL_TEXTURE0 + unit);
 	glBindTexture(GL_TEXTURE_2D, self.handle);

@@ -1,9 +1,9 @@
 #include "camera.h"
 
-static void _camera_update_vectors(struct opengl_camera* self);
+static void _camera_update_vectors(Camera *self);
 
 static void
-_camera_update_vectors(struct opengl_camera* self)
+_camera_update_vectors(Camera *self)
 {
 	vec3 direction = {
 		cos(glm_rad(self->yaw)) * cos(glm_rad(self->pitch)),
@@ -20,10 +20,10 @@ _camera_update_vectors(struct opengl_camera* self)
 	glm_normalize(self->up);
 }
 
-struct opengl_camera
+Camera
 camera_create(vec3 position, vec3 up, float yaw, float pitch, float speed, float sensitivity, float fov)
 {
-	struct opengl_camera self = {
+	Camera self = {
 		.yaw = yaw,
 		.pitch = pitch,
 		.speed = speed,
@@ -36,10 +36,10 @@ camera_create(vec3 position, vec3 up, float yaw, float pitch, float speed, float
 	return(self);
 }
 
-struct opengl_camera
+Camera
 camera_create_default()
 {
-	struct opengl_camera self = {
+	Camera self = {
 		.position = { 0.0f, 0.0f, 3.0f },
 		.world_up = { 0.0f, 1.0f, 0.0f },
 		.yaw = -90.0f,
@@ -53,7 +53,7 @@ camera_create_default()
 }
 
 void
-camera_get_viewmatrix(struct opengl_camera self, mat4 view)
+camera_get_viewmatrix(Camera self, mat4 view)
 {
 	vec3 target;
 
@@ -62,36 +62,31 @@ camera_get_viewmatrix(struct opengl_camera self, mat4 view)
 }
 
 void
-camera_process_input(struct opengl_camera* self, enum camera_movement direction, float delta_time)
+camera_process_input(Camera *self, Movement direction, float delta_time)
 {
 	float velocity = self->speed * delta_time;
 
-	switch (direction)
-	{
-		case FORWARD:
-		{
+	switch (direction) {
+		case FORWARD: {
 			glm_vec3_muladds(self->front, velocity, self->position);
 		} break;
 
-		case BACKWARD:
-		{
+		case BACKWARD: {
 			glm_vec3_muladds(self->front, -1.0f * velocity, self->position);
 		} break;
 
-		case LEFT:
-		{
+		case LEFT: {
 			glm_vec3_muladds(self->right, -1.0f * velocity, self->position);
 		} break;
 
-		case RIGHT:
-		{
+		case RIGHT: {
 			glm_vec3_muladds(self->right, velocity, self->position);
 		} break;
 	}
 }
 
 void
-camera_process_mouse(struct opengl_camera* self, float xoffset, float yoffset, GLboolean constrain_pitch)
+camera_process_mouse(Camera *self, float xoffset, float yoffset, GLboolean constrain_pitch)
 {
 	xoffset *= self->sensitivity;
 	yoffset *= self->sensitivity;
@@ -99,12 +94,10 @@ camera_process_mouse(struct opengl_camera* self, float xoffset, float yoffset, G
 	self->yaw += xoffset;
 	self->pitch += yoffset;
 
-	if (constrain_pitch)
-	{
+	if (constrain_pitch) {
 		if (self->pitch > 89.0f)
 			self->pitch = 89.0f;
-
-		if (self->pitch < -89.0f)
+		else if (self->pitch < -89.0f)
 			self->pitch = -89.0f;
 	}
 
@@ -112,13 +105,12 @@ camera_process_mouse(struct opengl_camera* self, float xoffset, float yoffset, G
 }
 
 void
-camera_process_scroll(struct opengl_camera* self, double yoffset)
+camera_process_scroll(Camera *self, double yoffset)
 {
 	self->fov -= (float)yoffset;
 
 	if (self->fov < 1.0f)
 		self->fov = 1.0f;
-
-	if (self->fov > 90.0f)
+	else if (self->fov > 90.0f)
 		self->fov = 90.0f;
 }

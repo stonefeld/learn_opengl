@@ -6,15 +6,14 @@
 #include "vao.h"
 #include "vbo.h"
 
-struct opengl_window
-{
-	GLFWwindow* handle;
+typedef struct {
+	GLFWwindow *handle;
 	int width;
 	int height;
-	char* title;
-};
+	char *title;
+} Window;
 
-struct opengl_camera camera;
+Camera camera;
 float cursor_last_x = 400.0f;
 float cursor_last_y = 300.0f;
 bool cursor_first = true;
@@ -22,22 +21,21 @@ bool cursor_first = true;
 float delta_time = 0.0f; // Time between current frame and last frame.
 float last_frame = 0.0f; // Time of last frame.
 
-void framebuffer_size_callback(GLFWwindow* handle, int widht, int height);
-void mouse_callback(GLFWwindow* handle, double xpos, double ypos);
-void process_input(GLFWwindow* handle);
-void scroll_callback(GLFWwindow* handle, double xoffset, double yoffset);
+void framebuffer_size_callback(GLFWwindow *handle, int widht, int height);
+void mouse_callback(GLFWwindow *handle, double xpos, double ypos);
+void process_input(GLFWwindow *handle);
+void scroll_callback(GLFWwindow *handle, double xoffset, double yoffset);
 
 void
-framebuffer_size_callback(GLFWwindow* handle, int width, int height)
+framebuffer_size_callback(GLFWwindow *handle, int width, int height)
 {
 	glViewport(0, 0, width, height);
 }
 
 void
-mouse_callback(GLFWwindow* handle, double xpos, double ypos)
+mouse_callback(GLFWwindow *handle, double xpos, double ypos)
 {
-	if (cursor_first)
-	{
+	if (cursor_first) {
 		cursor_last_x = xpos;
 		cursor_last_y = ypos;
 		cursor_first = false;
@@ -52,7 +50,7 @@ mouse_callback(GLFWwindow* handle, double xpos, double ypos)
 }
 
 void
-process_input(GLFWwindow* handle)
+process_input(GLFWwindow *handle)
 {
 	if (glfwGetKey(handle, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(handle, 1);
@@ -69,13 +67,13 @@ process_input(GLFWwindow* handle)
 }
 
 void
-scroll_callback(GLFWwindow* handle, double xoffset, double yoffset)
+scroll_callback(GLFWwindow *handle, double xoffset, double yoffset)
 {
 	camera_process_scroll(&camera, yoffset);
 }
 
 int
-main(int argc, char* argv[])
+main(int argc, char **argv)
 {
 	float vertices[] = {
 		// positions          // normals           // texture coords
@@ -123,8 +121,7 @@ main(int argc, char* argv[])
 	};
 
 	// Initialize GLFW.
-	if (!glfwInit())
-	{
+	if (!glfwInit()) {
 		fprintf(stderr, "%s", "Failed to initialize GLFW\n");
 		return(1);
 	}
@@ -139,15 +136,14 @@ main(int argc, char* argv[])
 	glfwWindowHint(GLFW_FLOATING, GLFW_TRUE);
 
 	// Create an opnegl_window instance and specify its attributes.
-	struct opengl_window window;
+	Window window;
 	window.width = 800;
 	window.height = 600;
 	window.title = "Learn OpenGL";
 
 	// Create the window and check if everything is ok.
 	window.handle = glfwCreateWindow(window.width, window.height, window.title, NULL, NULL);
-	if (window.handle == NULL)
-	{
+	if (window.handle == NULL) {
 		fprintf(stderr, "%s", "Failed to create GLFW window\n");
 		glfwTerminate();
 		return(1);
@@ -155,8 +151,7 @@ main(int argc, char* argv[])
 	glfwMakeContextCurrent(window.handle);
 
 	// Initialize GLAD.
-	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-	{
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
 		fprintf(stderr, "%s", "Failed to initialize GLAD\n");
 		return(1);
 	}
@@ -170,14 +165,14 @@ main(int argc, char* argv[])
 	glfwSetInputMode(window.handle, GLFW_CURSOR, GLFW_CURSOR_DISABLED); // Tell OpenGL to hide and capture cursor when focused.
 
 	// Create the shaders.
-	struct opengl_shader cube_shader = shader_create("assets/shaders/lighting_vert.glsl", "assets/shaders/lighting_frag.glsl");
-	struct opengl_shader light_cube_shader = shader_create("assets/shaders/light_cube_vert.glsl", "assets/shaders/light_cube_frag.glsl");
+	Shader cube_shader = shader_create("assets/shaders/lighting_vert.glsl", "assets/shaders/lighting_frag.glsl");
+	Shader light_cube_shader = shader_create("assets/shaders/light_cube_vert.glsl", "assets/shaders/light_cube_frag.glsl");
 
 	// Create an instance of a vertex buffer object.
-	struct opengl_vbo cube_vbo = vbo_create(GL_ARRAY_BUFFER, false);
+	Vbo cube_vbo = vbo_create(GL_ARRAY_BUFFER, false);
 
 	// Create an instance of a vertex array object.
-	struct opengl_vao cube_vao = vao_create();
+	Vao cube_vao = vao_create();
 
 	// Bind the vao first so everything else gets bound to this vao.
 	vao_bind(cube_vao);
@@ -197,7 +192,7 @@ main(int argc, char* argv[])
 #endif
 
 	// Create the light source vao.
-	struct opengl_vao light_cube_vao = vao_create();
+	Vao light_cube_vao = vao_create();
 
 	// Bind the previous cube_vbo and the new vao.
 	vao_bind(light_cube_vao);
@@ -211,8 +206,8 @@ main(int argc, char* argv[])
 	vbo_unbind(cube_vbo);
 
 	// Create the new cube texture.
-	struct opengl_texture cube_texture = texture_create("assets/images/container2.png");
-	struct opengl_texture cube_specular_map = texture_create("assets/images/container2_specular.png");
+	Texture cube_texture = texture_create("assets/images/container2.png");
+	Texture cube_specular_map = texture_create("assets/images/container2_specular.png");
 
 	// Create the camera with default values.
 	camera = camera_create_default();
@@ -240,8 +235,7 @@ main(int argc, char* argv[])
 	};
 
 	// Main loop.
-	while (!glfwWindowShouldClose(window.handle))
-	{
+	while (!glfwWindowShouldClose(window.handle)) {
 		// Calculate delta_time.
 		float current_frame = glfwGetTime();
 		delta_time = current_frame - last_frame;
@@ -339,8 +333,7 @@ main(int argc, char* argv[])
 		vao_bind(cube_vao);
 
 		// Render the containers.
-		for (unsigned int i = 0; i < 10; i++)
-		{
+		for (unsigned int i = 0; i < 10; i++) {
 			// Calculate the model matrix for each cube.
 			glm_mat4_identity(model);
 			glm_translate(model, cube_positions[i]);
@@ -364,8 +357,7 @@ main(int argc, char* argv[])
 		vao_bind(light_cube_vao);
 
 		// Render the point lights.
-		for (unsigned int i = 0; i < 4; i++)
-		{
+		for (unsigned int i = 0; i < 4; i++) {
 			// Calculate the model matrix for each point light.
 			glm_mat4_identity(model);
 			glm_translate(model, pointlight_positions[i]);

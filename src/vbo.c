@@ -1,9 +1,9 @@
 #include "vbo.h"
 
-struct opengl_vbo
+Vbo
 vbo_create(GLint type, bool dynamic)
 {
-	struct opengl_vbo self = {
+	Vbo self = {
 		.type = type,
 		.dynamic = dynamic
 	};
@@ -12,25 +12,25 @@ vbo_create(GLint type, bool dynamic)
 }
 
 void
-vbo_destroy(struct opengl_vbo self)
+vbo_destroy(Vbo self)
 {
 	glDeleteBuffers(1, &self.handle);
 }
 
 void
-vbo_bind(struct opengl_vbo self)
+vbo_bind(Vbo self)
 {
 	glBindBuffer(self.type, self.handle);
 }
 
 void
-vbo_unbind(struct opengl_vbo self)
+vbo_unbind(Vbo self)
 {
 	glBindBuffer(self.type, 0);
 }
 
 void
-vbo_buffer(struct opengl_vbo self, GLsizeiptr size, void* data)
+vbo_buffer(Vbo self, GLsizeiptr size, void* data)
 {
 	vbo_bind(self);
 	glBufferData(self.type, size, data, self.dynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW);

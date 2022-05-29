@@ -1,7 +1,8 @@
 CC = gcc
-CFLAGS = -std=c11 -O3 -g -Wall -Wextra -Wpedantic -Wstrict-aliasing
+CFLAGS = -std=c11 -g -Wall -Wextra -Wpedantic -Wstrict-aliasing
 CFLAGS += -Isrc -Ilib/glad/include -Ilib/glfw/include -Ilib/stb_image/include -Ilib/cglm/include
-LDFLAGS = lib/glad/src/glad.o lib/glfw/src/libglfw3.a lib/stb_image/src/stb_image.o lib/cglm/libcglm.a -lm
+LDFLAGS = -lm
+LDFLAGS += lib/glad/src/glad.o lib/glfw/src/libglfw3.a lib/stb_image/src/stb_image.o lib/cglm/libcglm.a
 
 ifeq ($(OS), Windows_NT)
 	LDFLAGS += -mwindows -mconsole -lpthread

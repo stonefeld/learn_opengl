@@ -1,21 +1,21 @@
 #include "shader.h"
 
-static GLuint _shader_compile(const char* path, GLenum type);
-static void _shader_log_and_fail(GLint handle, const char* adverb, const char* path,
-                                 void (*getlog)(GLuint, GLsizei, GLsizei*, GLchar*),
-                                 void (*getiv)(GLuint, GLenum, GLint*));
+typedef void (*GetLog)(GLuint, GLsizei, GLsizei*, GLchar*);
+typedef void (*GetIv)(GLuint, GLenum, GLint*);
+
+static GLuint _shader_compile(const char *path, GLenum type);
+static void _shader_log_and_fail(GLint handle, const char *adverb, const char *path, GetLog getlog, GetIv getiv);
 
 static GLuint
-_shader_compile(const char* path, GLenum type)
+_shader_compile(const char *path, GLenum type)
 {
-	FILE* f;
-	char* text;
+	FILE *f;
+	char *text;
 	long len;
 
 	// Open the file.
 	f = fopen(path, "rb");
-	if (f == NULL)
-	{
+	if (f == NULL) {
 		fprintf(stderr, "Error loading shader at %s\n", path);
 		exit(1);
 	}
@@ -46,23 +46,19 @@ _shader_compile(const char* path, GLenum type)
 	GLint compiled;
 	glGetShaderiv(handle, GL_COMPILE_STATUS, &compiled);
 	if (!compiled)
-	{
 		_shader_log_and_fail(handle, "compiling", path, glGetShaderInfoLog, glGetShaderiv);
-	}
 
 	free(text);
 	return(handle);
 }
 
 static void
-_shader_log_and_fail(GLint handle, const char* adverb, const char* path,
-                     void (*getlog)(GLuint, GLsizei, GLsizei*, GLchar*),
-                     void (*getiv)(GLuint, GLenum, GLint*))
+_shader_log_and_fail(GLint handle, const char *adverb, const char *path, GetLog getlog, GetIv getiv)
 {
 	GLint loglen;
 	getiv(handle, GL_INFO_LOG_LENGTH, &loglen);
 
-	char* logtext = calloc(1, loglen);
+	char *logtext = calloc(1, loglen);
 	getlog(handle, loglen, NULL, logtext);
 	fprintf(stderr, "Error %s shader at %s:\n%s", adverb, path, logtext);
 
@@ -70,10 +66,10 @@ _shader_log_and_fail(GLint handle, const char* adverb, const char* path,
 	exit(1);
 }
 
-struct opengl_shader
-shader_create(const char* vertex_path, const char* fragment_path)
+Shader
+shader_create(const char *vertex_path, const char *fragment_path)
 {
-	struct opengl_shader self;
+	Shader self;
 	self.vertex_handle = _shader_compile(vertex_path, GL_VERTEX_SHADER);
 	self.fragment_handle = _shader_compile(fragment_path, GL_FRAGMENT_SHADER);
 	self.handle = glCreateProgram();
@@ -86,8 +82,7 @@ shader_create(const char* vertex_path, const char* fragment_path)
 	// Check for errors.
 	GLint linked;
 	glGetProgramiv(self.handle, GL_LINK_STATUS, &linked);
-	if (!linked)
-	{
+	if (!linked) {
 		char buf[512];
 		snprintf(buf, 512, "[%s, %s]", vertex_path, fragment_path);
 		_shader_log_and_fail(self.handle, "linking", buf, glGetProgramInfoLog, glGetProgramiv);
@@ -97,7 +92,7 @@ shader_create(const char* vertex_path, const char* fragment_path)
 }
 
 void
-shader_destroy(struct opengl_shader self)
+shader_destroy(Shader self)
 {
 	glDeleteProgram(self.handle);
 	glDeleteShader(self.vertex_handle);
@@ -105,78 +100,78 @@ shader_destroy(struct opengl_shader self)
 }
 
 void
-shader_bind(struct opengl_shader self)
+shader_bind(Shader self)
 {
 	glUseProgram(self.handle);
 }
 
 // ----------------------------------------------------------------------------
 void
-shader_uniform_int(struct opengl_shader self, const char* name, int v)
+shader_uniform_int(Shader self, const char *name, int v)
 {
 	glUniform1i(glGetUniformLocation(self.handle, name), v);
 }
 
 // ----------------------------------------------------------------------------
 void
-shader_uniform_float(struct opengl_shader self, const char* name, float v)
+shader_uniform_float(Shader self, const char *name, float v)
 {
     glUniform1f(glGetUniformLocation(self.handle, name), v);
 }
 
 // ----------------------------------------------------------------------------
 void
-shader_uniform_vec2(struct opengl_shader self, const char* name, vec2 v)
+shader_uniform_vec2(Shader self, const char *name, vec2 v)
 {
-    glUniform2fv(glGetUniformLocation(self.handle, name), 1, &v[0]);
+    glUniform2fv(glGetUniformLocation(self.handle, name), 1, v);
 }
 void
-shader_uniform_float2(struct opengl_shader self, const char* name, float x, float y)
+shader_uniform_float2(Shader self, const char* name, float x, float y)
 {
     glUniform2f(glGetUniformLocation(self.handle, name), x, y);
 }
 
 // ----------------------------------------------------------------------------
 void
-shader_uniform_vec3(struct opengl_shader self, const char* name, vec3 v)
+shader_uniform_vec3(Shader self, const char *name, vec3 v)
 {
-    glUniform3fv(glGetUniformLocation(self.handle, name), 1, &v[0]);
+    glUniform3fv(glGetUniformLocation(self.handle, name), 1, v);
 }
 void
-shader_uniform_float3(struct opengl_shader self, const char* name, float x, float y, float z)
+shader_uniform_float3(Shader self, const char *name, float x, float y, float z)
 {
     glUniform3f(glGetUniformLocation(self.handle, name), x, y, z);
 }
 
 // ----------------------------------------------------------------------------
 void
-shader_uniform_vec4(struct opengl_shader self, const char* name, vec4 v)
+shader_uniform_vec4(Shader self, const char *name, vec4 v)
 {
-    glUniform4fv(glGetUniformLocation(self.handle, name), 1, &v[0]);
+    glUniform4fv(glGetUniformLocation(self.handle, name), 1, v);
 }
 void
-shader_uniform_float4(struct opengl_shader self, const char* name, float x, float y, float z, float w)
+shader_uniform_float4(Shader self, const char *name, float x, float y, float z, float w)
 {
     glUniform4f(glGetUniformLocation(self.handle, name), x, y, z, w);
 }
 
 // ----------------------------------------------------------------------------
 void
-shader_uniform_mat2(struct opengl_shader self, const char* name, mat2 v)
+shader_uniform_mat2(Shader self, const char *name, mat2 v)
 {
-    glUniformMatrix2fv(glGetUniformLocation(self.handle, name), 1, GL_FALSE, &v[0][0]);
+    glUniformMatrix2fv(glGetUniformLocation(self.handle, name), 1, GL_FALSE, v[0]);
 }
 
 // ----------------------------------------------------------------------------
 void
-shader_uniform_mat3(struct opengl_shader self, const char* name, mat3 v)
+shader_uniform_mat3(Shader self, const char *name, mat3 v)
 {
-    glUniformMatrix3fv(glGetUniformLocation(self.handle, name), 1, GL_FALSE, &v[0][0]);
+    glUniformMatrix3fv(glGetUniformLocation(self.handle, name), 1, GL_FALSE, v[0]);
 }
 
 // ----------------------------------------------------------------------------
 void
-shader_uniform_mat4(struct opengl_shader self, const char* name, mat4 v)
+shader_uniform_mat4(Shader self, const char *name, mat4 v)
 {
-    glUniformMatrix4fv(glGetUniformLocation(self.handle, name), 1, GL_FALSE, &v[0][0]);
+    glUniformMatrix4fv(glGetUniformLocation(self.handle, name), 1, GL_FALSE, v[0]);
 }

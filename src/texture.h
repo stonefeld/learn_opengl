@@ -5,15 +5,14 @@
 #include "types.h"
 #include "utils.h"
 
-struct opengl_texture
-{
+typedef struct {
 	GLuint handle;
 	vec2i size;
-};
+} Texture;
 
-struct opengl_texture texture_create(char* path);
-void texture_destroy(struct opengl_texture self);
+Texture texture_create(char* path);
+void texture_destroy(Texture self);
 
-void texture_bind(struct opengl_texture self, int unit);
+void texture_bind(Texture self, int unit);
 
 #endif
